@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>برنامه‌ریز</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  @font-face {
+    font-family: 'Vazirmatn';
+    src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'Vazirmatn';
+    src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-Medium.woff2') format('woff2');
+    font-weight: 500;
+  }
+  @font-face {
+    font-family: 'Vazirmatn';
+    src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+  }
+
+  :root {
+    --bg: #FBF9F4;
+    --surface: #FFFFFF;
+    --ink: #1C2321;
+    --ink-soft: #7A8179;
+    --line: #E7E1D3;
+    --accent: #C98A2C;
+    --accent-soft: #F3E3C2;
+    --moss: #4F6F52;
+    --moss-soft: #DEE9DD;
+    --danger: #A6503D;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif;
+    height: 100%;
+    overscroll-behavior-y: none;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .header {
+    padding: 22px 20px 12px;
+  }
+
+  .header .date {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 4px;
+  }
+
+  .header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.2px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 28px;
+    padding: 18px 20px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .tab {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--ink-soft);
+    padding: 0 0 12px;
+    cursor: pointer;
+    position: relative;
+    font-weight: 500;
+  }
+
+  .tab.active {
+    color: var(--ink);
+  }
+
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    right: 0;
+    left: 0;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  main {
+    flex: 1;
+    padding: 8px 20px 100px;
+    overflow-y: auto;
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .list {
+    margin-top: 8px;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 2px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .row:last-child { border-bottom: none; }
+
+  .check {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    border-radius: 50%;
+    border: 1.5px solid var(--ink-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .check.done {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .check svg {
+    width: 13px;
+    height: 13px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .check.done svg { opacity: 1; }
+
+  .row-text {
+    flex: 1;
+    font-size: 15.5px;
+    line-height: 1.4;
+    transition: color 0.15s;
+  }
+
+  .row-text.done {
+    color: var(--ink-soft);
+    text-decoration: line-through;
+    text-decoration-color: var(--line);
+    text-decoration-thickness: 1.5px;
+  }
+
+  .row-del {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 18px;
+    line-height: 1;
+    padding: 6px;
+    cursor: pointer;
+    opacity: 0.5;
+  }
+
+  /* Habit rows */
+  .habit-row {
+    padding: 16px 2px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .habit-row:last-child { border-bottom: none; }
+
+  .habit-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .habit-name {
+    font-size: 15.5px;
+    font-weight: 500;
+  }
+
+  .habit-streak {
+    font-size: 12.5px;
+    color: var(--moss);
+    background: var(--moss-soft);
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .habit-days {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .day-dot-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .day-label {
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+
+  .day-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1.5px solid var(--line);
+    background: var(--surface);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .day-dot.today { border-color: var(--accent); }
+  .day-dot.filled { background: var(--moss); border-color: var(--moss); }
+  .day-dot.disabled { cursor: default; opacity: 0.55; }
+
+  .empty {
+    text-align: center;
+    padding: 60px 20px 20px;
+    color: var(--ink-soft);
+  }
+
+  .empty .emoji { font-size: 30px; margin-bottom: 10px; }
+  .empty .title { font-size: 15px; color: var(--ink); font-weight: 500; margin-bottom: 4px; }
+  .empty .sub { font-size: 13.5px; }
+
+  .fab {
+    position: fixed;
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 14px 26px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 6px 20px rgba(201, 138, 44, 0.35);
+    cursor: pointer;
+  }
+
+  .sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(28, 35, 33, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 10;
+  }
+
+  .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .sheet {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-radius: 20px 20px 0 0;
+    padding: 22px 20px calc(22px + env(safe-area-inset-bottom));
+    transform: translateY(100%);
+    transition: transform 0.25s ease;
+    z-index: 11;
+  }
+
+  .sheet.open { transform: translateY(0); }
+
+  .sheet h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 14px;
+  }
+
+  .sheet input {
+    width: 100%;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 13px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  .sheet input:focus { outline: none; border-color: var(--accent); }
+
+  .sheet-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .sheet-actions button {
+    flex: 1;
+    padding: 13px;
+    border-radius: 12px;
+    border: none;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .btn-cancel { background: var(--bg); color: var(--ink-soft); border: 1.5px solid var(--line) !important; }
+  .btn-confirm { background: var(--accent); color: #fff; }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <p class="date" id="todayLabel"></p>
+    <h1>برنامه‌ریز روزت</h1>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="todo">کارها</button>
+    <button class="tab" data-tab="habits">عادت‌ها</button>
+  </div>
+
+  <main>
+    <div class="view active" id="view-todo">
+      <div class="list" id="todoList"></div>
+      <div class="empty" id="todoEmpty" style="display:none">
+        <div class="emoji">📝</div>
+        <div class="title">هنوز کاری اضافه نکردی</div>
+        <div class="sub">با دکمه‌ی پایین یه کار جدید اضافه کن</div>
+      </div>
+    </div>
+
+    <div class="view" id="view-habits">
+      <div class="list" id="habitList"></div>
+      <div class="empty" id="habitEmpty" style="display:none">
+        <div class="emoji">🌱</div>
+        <div class="title">هنوز عادتی نساختی</div>
+        <div class="sub">عادتی که می‌خوای هر روز دنبالش کنی رو اضافه کن</div>
+      </div>
+    </div>
+  </main>
+
+  <button class="fab" id="fabAdd">+ افزودن</button>
+
+  <div class="sheet-backdrop" id="backdrop"></div>
+  <div class="sheet" id="sheet">
+    <h2 id="sheetTitle">کار جدید</h2>
+    <input type="text" id="sheetInput" placeholder="مثلاً خرید نون">
+    <div class="sheet-actions">
+      <button class="btn-cancel" id="sheetCancel">انصراف</button>
+      <button class="btn-confirm" id="sheetConfirm">افزودن</button>
+    </div>
+  </div>
+
+<script>
+  // ---------- Telegram init ----------
+  const tg = window.Telegram ? window.Telegram.WebApp : null;
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    try { tg.setBackgroundColor('#FBF9F4'); } catch (e) {}
+    try { tg.setHeaderColor('#FBF9F4'); } catch (e) {}
+  }
+
+  function haptic(type) {
+    if (tg && tg.HapticFeedback) {
+      if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
+      else tg.HapticFeedback.impactOccurred('light');
+    }
+  }
+
+  // ---------- Storage layer ----------
+  // Uses Telegram CloudStorage when running inside Telegram, otherwise falls
+  // back to localStorage so the app is testable in a normal browser too.
+  const storage = {
+    get(key) {
+      return new Promise((resolve) => {
+        if (tg && tg.CloudStorage) {
+          tg.CloudStorage.getItem(key, (err, value) => resolve(err ? null : value));
+        } else {
+          resolve(localStorage.getItem(key));
+        }
+      });
+    },
+    set(key, value) {
+      return new Promise((resolve) => {
+        if (tg && tg.CloudStorage) {
+          tg.CloudStorage.setItem(key, value, () => resolve());
+        } else {
+          localStorage.setItem(key, value);
+          resolve();
+        }
+      });
+    }
+  };
+
+  // ---------- Date helpers ----------
+  function isoDate(d) {
+    return d.toISOString().slice(0, 10);
+  }
+  const todayISO = isoDate(new Date());
+  const dayLabels = ['ی', 'د', 'س', 'چ', 'پ', 'ج', 'ش']; // Sun..Sat short labels
+
+  document.getElementById('todayLabel').textContent = new Date().toLocaleDateString('fa-IR', {
+    weekday: 'long', day: 'numeric', month: 'long'
+  });
+
+  // ---------- State ----------
+  let todos = [];
+  let habits = [];
+  let activeTab = 'todo';
+
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+  async function loadAll() {
+    const t = await storage.get('todos');
+    const h = await storage.get('habits');
+    todos = t ? JSON.parse(t) : [];
+    habits = h ? JSON.parse(h) : [];
+    renderTodos();
+    renderHabits();
+  }
+
+  function saveTodos() { storage.set('todos', JSON.stringify(todos)); }
+  function saveHabits() { storage.set('habits', JSON.stringify(habits)); }
+
+  // ---------- Todo rendering ----------
+  function renderTodos() {
+    const list = document.getElementById('todoList');
+    const empty = document.getElementById('todoEmpty');
+    list.innerHTML = '';
+    if (todos.length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    const sorted = [...todos].sort((a, b) => (a.done === b.done ? 0 : a.done ? 1 : -1));
+
+    sorted.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'row';
+
+      const check = document.createElement('div');
+      check.className = 'check' + (item.done ? ' done' : '');
+      check.innerHTML = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.2 12L13 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      check.onclick = () => {
+        item.done = !item.done;
+        haptic(item.done ? 'success' : 'light');
+        saveTodos();
+        renderTodos();
+      };
+
+      const text = document.createElement('div');
+      text.className = 'row-text' + (item.done ? ' done' : '');
+      text.textContent = item.text;
+
+      const del = document.createElement('button');
+      del.className = 'row-del';
+      del.textContent = '×';
+      del.onclick = () => {
+        todos = todos.filter((t) => t.id !== item.id);
+        saveTodos();
+        renderTodos();
+      };
+
+      row.appendChild(check);
+      row.appendChild(text);
+      row.appendChild(del);
+      list.appendChild(row);
+    });
+  }
+
+  // ---------- Habit rendering ----------
+  function lastSevenDays() {
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      days.push(d);
+    }
+    return days;
+  }
+
+  function computeStreak(habit) {
+    let streak = 0;
+    let cursor = new Date();
+    while (habit.done.includes(isoDate(cursor))) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    return streak;
+  }
+
+  function renderHabits() {
+    const list = document.getElementById('habitList');
+    const empty = document.getElementById('habitEmpty');
+    list.innerHTML = '';
+    if (habits.length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    const days = lastSevenDays();
+
+    habits.forEach((habit) => {
+      const row = document.createElement('div');
+      row.className = 'habit-row';
+
+      const top = document.createElement('div');
+      top.className = 'habit-top';
+      const name = document.createElement('div');
+      name.className = 'habit-name';
+      name.textContent = habit.name;
+      const streak = document.createElement('div');
+      streak.className = 'habit-streak';
+      const s = computeStreak(habit);
+      streak.textContent = s > 0 ? s + ' روز پیاپی' : 'شروع نشده';
+      top.appendChild(name);
+      top.appendChild(streak);
+
+      const daysWrap = document.createElement('div');
+      daysWrap.className = 'habit-days';
+
+      days.forEach((d) => {
+        const iso = isoDate(d);
+        const isToday = iso === todayISO;
+        const filled = habit.done.includes(iso);
+
+        const wrap = document.createElement('div');
+        wrap.className = 'day-dot-wrap';
+
+        const label = document.createElement('div');
+        label.className = 'day-label';
+        label.textContent = dayLabels[d.getDay()];
+
+        const dot = document.createElement('div');
+        dot.className = 'day-dot' + (isToday ? ' today' : '') + (filled ? ' filled' : '') + (isToday ? '' : ' disabled');
+        if (isToday) {
+          dot.onclick = () => {
+            if (filled) {
+              habit.done = habit.done.filter((x) => x !== iso);
+            } else {
+              habit.done.push(iso);
+              haptic('success');
+            }
+            saveHabits();
+            renderHabits();
+          };
+        }
+
+        wrap.appendChild(label);
+        wrap.appendChild(dot);
+        daysWrap.appendChild(wrap);
+      });
+
+      row.appendChild(top);
+      row.appendChild(daysWrap);
+      list.appendChild(row);
+    });
+  }
+
+  // ---------- Tabs ----------
+  document.querySelectorAll('.tab').forEach((btn) => {
+    btn.onclick = () => {
+      activeTab = btn.dataset.tab;
+      document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b === btn));
+      document.getElementById('view-todo').classList.toggle('active', activeTab === 'todo');
+      document.getElementById('view-habits').classList.toggle('active', activeTab === 'habits');
+    };
+  });
+
+  // ---------- Add sheet ----------
+  const sheet = document.getElementById('sheet');
+  const backdrop = document.getElementById('backdrop');
+  const sheetInput = document.getElementById('sheetInput');
+  const sheetTitle = document.getElementById('sheetTitle');
+
+  function openSheet() {
+    sheetTitle.textContent = activeTab === 'todo' ? 'کار جدید' : 'عادت جدید';
+    sheetInput.placeholder = activeTab === 'todo' ? 'مثلاً خرید نون' : 'مثلاً ۱۰ دقیقه پیاده‌روی';
+    sheetInput.value = '';
+    sheet.classList.add('open');
+    backdrop.classList.add('open');
+    setTimeout(() => sheetInput.focus(), 150);
+  }
+
+  function closeSheet() {
+    sheet.classList.remove('open');
+    backdrop.classList.remove('open');
+  }
+
+  document.getElementById('fabAdd').onclick = openSheet;
+  document.getElementById('sheetCancel').onclick = closeSheet;
+  backdrop.onclick = closeSheet;
+
+  function confirmAdd() {
+    const value = sheetInput.value.trim();
+    if (!value) return;
+    if (activeTab === 'todo') {
+      todos.push({ id: uid(), text: value, done: false });
+      saveTodos();
+      renderTodos();
+    } else {
+      habits.push({ id: uid(), name: value, done: [] });
+      saveHabits();
+      renderHabits();
+    }
+    haptic('light');
+    closeSheet();
+  }
+
+  document.getElementById('sheetConfirm').onclick = confirmAdd;
+  sheetInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') confirmAdd();
+  });
+
+  // ---------- Boot ----------
+  loadAll();
+</script>
+</body>
+</html>
