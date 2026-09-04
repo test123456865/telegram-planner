@@ -3,28 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Planner</title>
+<title>Economic Calendar</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #F3F1EA;
-    --surface: #FFFFFF;
-    --ink: #1C1F1D;
-    --ink-soft: #767F76;
-    --ink-faint: #A7AEA6;
-    --line: #E6E2D6;
-    --accent: #1F9D8C;
-    --accent-dark: #157A6D;
-    --accent-soft: #DCEFEC;
-    --amber: #E08D3C;
-    --amber-soft: #FBEBD8;
-    --radius-lg: 22px;
-    --radius-md: 16px;
-    --radius-sm: 12px;
-    --shadow: 0 8px 24px rgba(28, 31, 29, 0.06);
+    --bg: #0A0814;
+    --surface: #14111F;
+    --surface-2: #171420;
+    --line: rgba(255,255,255,0.07);
+    --text: #F4F2F9;
+    --text-soft: #8D89A0;
+    --text-faint: #625E75;
+    --violet: #8B7CF6;
+    --violet-dim: rgba(139,124,246,0.14);
+    --violet-glow: rgba(139,124,246,0.45);
+    --red: #F0475C;
+    --red-bg: rgba(240,71,92,0.14);
+    --orange: #F5A524;
+    --orange-bg: rgba(245,165,36,0.16);
+    --green: #22C55E;
+    --green-bg: rgba(34,197,94,0.14);
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -33,465 +34,433 @@
     margin: 0;
     padding: 0;
     background: var(--bg);
-    color: var(--ink);
-    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-    height: 100%;
-    overscroll-behavior-y: none;
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100%;
   }
 
-  body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+  body { padding-bottom: env(safe-area-inset-bottom); }
 
-  .serif { font-family: 'Fraunces', Georgia, serif; }
+  svg { display: block; }
 
-  /* ---------- Hero ---------- */
-  .hero {
-    padding: 26px 20px 20px;
-    background: linear-gradient(160deg, var(--accent) 0%, var(--accent-dark) 100%);
-    color: #fff;
-    border-radius: 0 0 28px 28px;
-  }
-
-  .hero .greeting {
-    font-size: 13px;
-    opacity: 0.85;
-    margin: 0 0 6px;
-    font-weight: 600;
-    letter-spacing: 0.2px;
-  }
-
-  .hero h1 {
-    font-family: 'Fraunces', serif;
-    font-size: 26px;
-    font-weight: 600;
-    margin: 0 0 18px;
-    line-height: 1.25;
-  }
-
-  .progress-card {
-    background: rgba(255,255,255,0.14);
-    border-radius: var(--radius-md);
-    padding: 14px 16px;
-    backdrop-filter: blur(6px);
-  }
-
-  .progress-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 10px;
-  }
-
-  .progress-top .label { font-size: 13px; opacity: 0.9; font-weight: 500; }
-  .progress-top .count { font-size: 13px; font-weight: 700; }
-
-  .progress-track {
-    height: 8px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.25);
+  /* ---------- Header ---------- */
+  .header {
+    position: relative;
+    padding: 24px 18px 18px;
+    text-align: center;
     overflow: hidden;
   }
 
-  .progress-fill {
-    height: 100%;
-    background: #fff;
-    border-radius: 8px;
-    transition: width 0.4s cubic-bezier(.34,1.56,.64,1);
+  .glow {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    height: 220px;
+    background: radial-gradient(ellipse at center, var(--violet-glow) 0%, transparent 70%);
+    opacity: 0.5;
+    pointer-events: none;
   }
 
-  /* ---------- Tabs ---------- */
-  .tabs {
+  .filter-btn {
+    position: absolute;
+    top: 22px;
+    right: 18px;
     display: flex;
+    align-items: center;
     gap: 6px;
-    margin: -18px 20px 0;
-    background: var(--surface);
-    border-radius: var(--radius-md);
-    padding: 5px;
-    box-shadow: var(--shadow);
+    background: rgba(139,124,246,0.06);
+    border: 1px solid rgba(139,124,246,0.35);
+    color: var(--violet);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .icon-box {
+    position: relative;
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 16px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #9C7CF6 0%, #6D4FD6 100%);
+    box-shadow: 0 10px 28px rgba(120,90,240,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  h1 {
+    font-size: 25px;
+    font-weight: 800;
+    margin: 0 0 8px;
+    letter-spacing: -0.3px;
     position: relative;
     z-index: 2;
   }
 
-  .tab {
-    flex: 1;
-    background: none;
-    border: none;
-    font-family: inherit;
+  .subtitle {
     font-size: 14px;
-    font-weight: 700;
-    color: var(--ink-soft);
-    padding: 11px 0;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: color 0.2s;
+    color: var(--text-soft);
+    margin: 0;
     position: relative;
+    z-index: 2;
   }
 
-  .tab.active { color: #fff; }
+  /* ---------- Day strip ---------- */
+  .day-strip-wrap { padding: 18px 18px 0; }
 
-  .tab-indicator {
-    position: absolute;
-    top: 5px;
-    bottom: 5px;
-    width: calc(50% - 5px);
-    background: var(--ink);
-    border-radius: var(--radius-sm);
-    transition: transform 0.28s cubic-bezier(.34,1.56,.64,1);
-    z-index: -1;
-  }
-
-  /* ---------- Main ---------- */
-  main {
-    flex: 1;
-    padding: 22px 20px 110px;
-    overflow-y: auto;
-  }
-
-  .view { display: none; }
-  .view.active { display: block; animation: fadeIn 0.25s ease; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .section-label {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--ink-faint);
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin: 0 2px 10px;
-  }
-
-  /* ---------- Task rows ---------- */
-  .card {
+  .day-strip {
+    display: flex;
+    gap: 6px;
     background: var(--surface);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 14px 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .day-strip::-webkit-scrollbar { display: none; }
+
+  .day-cell {
+    flex: 1 0 auto;
+    min-width: 46px;
+    background: none;
+    border: 1.5px solid transparent;
+    border-radius: 12px;
+    padding: 8px 4px 9px;
+    font-family: inherit;
+    color: var(--text-soft);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+  }
+
+  .day-cell .dow { font-size: 10.5px; font-weight: 600; letter-spacing: 0.3px; }
+  .day-cell .date { font-size: 19px; font-weight: 800; color: var(--text); line-height: 1; }
+  .day-cell .mon { font-size: 10.5px; color: var(--text-faint); }
+  .day-cell .dot { width: 4px; height: 4px; border-radius: 50%; background: transparent; margin-top: 1px; }
+
+  .day-cell.selected {
+    border-color: var(--violet);
+    background: var(--violet-dim);
+    box-shadow: 0 0 0 1px rgba(139,124,246,0.15), 0 0 18px rgba(139,124,246,0.25);
+  }
+
+  .day-cell.selected .dow,
+  .day-cell.selected .mon { color: var(--violet); }
+  .day-cell.selected .dot { background: var(--violet); }
+
+  .day-jump {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 100%;
+    min-height: 62px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-soft);
+    cursor: pointer;
+  }
+
+  /* ---------- Filter chips ---------- */
+  .chip-row {
+    display: flex;
+    gap: 8px;
+    padding: 14px 18px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .chip-row::-webkit-scrollbar { display: none; }
+
+  .chip {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--text-soft);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .chip .dot.high { background: var(--red); }
+  .chip .dot.medium { background: var(--orange); }
+  .chip .dot.low { background: var(--green); }
+
+  .chip.active {
+    border-color: var(--violet);
+    background: var(--violet-dim);
+    color: var(--violet);
+    box-shadow: 0 0 14px rgba(139,124,246,0.22);
+  }
+
+  .chip.active svg path,
+  .chip.active svg rect,
+  .chip.active svg line { stroke: var(--violet); }
+
+  /* ---------- Table ---------- */
+  .table-wrap { padding: 16px 18px 8px; }
+
+  .table-head {
+    display: flex;
+    align-items: center;
+    padding: 0 4px 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-faint);
+    text-transform: none;
+  }
+
+  .table-head .col-time { flex: 0 0 78px; display: flex; align-items: center; gap: 5px; }
+  .table-head .col-event { flex: 1; }
+  .table-head .col-num { flex: 0 0 50px; text-align: right; }
+
+  .rows {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
     overflow: hidden;
   }
 
   .row {
     display: flex;
     align-items: center;
-    gap: 13px;
-    padding: 16px 16px;
+    gap: 8px;
+    padding: 14px 12px;
     border-bottom: 1px solid var(--line);
+    position: relative;
   }
 
   .row:last-child { border-bottom: none; }
 
-  .check {
-    width: 25px;
-    height: 25px;
-    min-width: 25px;
-    border-radius: 50%;
-    border: 2px solid var(--line);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.18s, border-color 0.18s, transform 0.18s;
+  .row::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 0;
+    width: 3px;
+    border-radius: 3px;
+    background: var(--bar-color, var(--text-faint));
   }
 
-  .check.done {
-    background: var(--accent);
-    border-color: var(--accent);
-    transform: scale(1.06);
-  }
+  .row.hidden { display: none; }
 
-  .check svg {
-    width: 13px;
-    height: 13px;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
-
-  .check.done svg { opacity: 1; }
-
-  .row-text {
-    flex: 1;
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.4;
-    transition: color 0.15s;
-  }
-
-  .row-text.done {
-    color: var(--ink-faint);
-    text-decoration: line-through;
-    text-decoration-color: var(--ink-faint);
-    text-decoration-thickness: 1.5px;
-  }
-
-  .row-del {
+  .star-btn, .bell-btn {
     background: none;
     border: none;
-    color: var(--ink-faint);
-    font-size: 18px;
-    line-height: 1;
-    padding: 6px;
     cursor: pointer;
-    border-radius: 50%;
-  }
-
-  /* ---------- Habit cards ---------- */
-  .habit-card {
-    background: var(--surface);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow);
-    padding: 18px 18px 16px;
-    margin-bottom: 14px;
-  }
-
-  .habit-top {
+    padding: 2px;
+    color: var(--text-faint);
+    flex: 0 0 auto;
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 16px;
   }
 
-  .habit-name {
-    font-size: 16px;
-    font-weight: 700;
-    margin: 0 0 4px;
-  }
+  .bell-btn { color: var(--violet); }
+  .star-btn.active { color: var(--orange); }
+  .bell-btn.muted { color: var(--text-faint); opacity: 0.4; }
 
-  .habit-streak {
-    font-size: 12.5px;
-    color: var(--amber);
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .habit-streak.zero { color: var(--ink-faint); }
-
-  .today-btn {
-    width: 46px;
-    height: 46px;
-    min-width: 46px;
-    border-radius: 50%;
-    border: 2px solid var(--line);
-    background: var(--surface);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.18s;
-  }
-
-  .today-btn.done {
-    background: var(--accent);
-    border-color: var(--accent);
-    transform: scale(1.05);
-  }
-
-  .today-btn svg { width: 19px; height: 19px; opacity: 0; transition: opacity 0.15s; }
-  .today-btn.done svg { opacity: 1; }
-
-  .habit-days {
-    display: flex;
-    justify-content: space-between;
-    gap: 4px;
-  }
-
-  .day-col {
+  .time-col {
+    flex: 0 0 62px;
     display: flex;
     flex-direction: column;
+    gap: 4px;
+  }
+
+  .time-col .time { font-size: 14px; font-weight: 700; }
+  .time-col .ccy { font-size: 11.5px; color: var(--text-soft); display: flex; align-items: center; gap: 4px; }
+
+  .event-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+  .event-col .name {
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .badges { display: flex; gap: 5px; flex-wrap: wrap; }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 6px;
+  }
+
+  .badge.high { background: var(--red-bg); color: var(--red); }
+  .badge.medium { background: var(--orange-bg); color: var(--orange); }
+  .badge.low { background: var(--green-bg); color: var(--green); }
+  .badge.period { background: rgba(255,255,255,0.06); color: var(--text-soft); }
+
+  .num-col {
+    flex: 0 0 46px;
+    text-align: right;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .num-col.dim { color: var(--text-faint); font-weight: 500; }
+  .num-col.up { color: var(--green); }
+  .num-col.down { color: var(--red); }
+
+  /* ---------- Footer ---------- */
+  .footer {
+    margin: 18px 18px 24px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    display: flex;
     align-items: center;
-    gap: 7px;
-    flex: 1;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 12.5px;
   }
 
-  .day-label {
-    font-size: 10.5px;
-    font-weight: 700;
-    color: var(--ink-faint);
-    text-transform: uppercase;
-  }
-
-  .day-bar {
-    width: 100%;
-    max-width: 26px;
-    height: 26px;
-    border-radius: 8px;
-    background: var(--line);
-  }
-
-  .day-bar.filled { background: var(--accent); }
-  .day-bar.today-outline { box-shadow: 0 0 0 2px var(--accent-dark); }
-
-  /* ---------- Empty states ---------- */
-  .empty {
-    text-align: center;
-    padding: 50px 20px 10px;
-    color: var(--ink-soft);
-  }
-
-  .empty .emoji { font-size: 34px; margin-bottom: 12px; }
-  .empty .title { font-size: 15.5px; color: var(--ink); font-weight: 700; margin-bottom: 4px; }
-  .empty .sub { font-size: 13.5px; color: var(--ink-soft); }
-
-  /* ---------- FAB ---------- */
-  .fab {
-    position: fixed;
-    bottom: calc(22px + env(safe-area-inset-bottom));
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--ink);
-    color: #fff;
-    border: none;
-    border-radius: 30px;
-    padding: 15px 28px;
-    font-family: inherit;
-    font-size: 14.5px;
-    font-weight: 700;
+  .tz {
     display: flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 10px 26px rgba(28, 31, 29, 0.28);
-    cursor: pointer;
+    color: var(--text-soft);
   }
 
-  .fab .plus { color: var(--accent); font-size: 17px; }
+  .tz b { color: var(--violet); font-weight: 700; }
 
-  /* ---------- Sheet ---------- */
+  .legend { display: flex; gap: 14px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; color: var(--text-soft); font-weight: 500; }
+  .legend-item .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* ---------- Sheet (Filter by currency) ---------- */
   .sheet-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(20, 22, 20, 0.4);
-    opacity: 0;
-    pointer-events: none;
+    position: fixed; inset: 0;
+    background: rgba(5,4,10,0.6);
+    opacity: 0; pointer-events: none;
     transition: opacity 0.2s;
     z-index: 10;
   }
-
   .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
 
   .sheet {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    background: var(--surface);
-    border-radius: 26px 26px 0 0;
-    padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-bottom: none;
+    border-radius: 22px 22px 0 0;
+    padding: 20px 18px calc(20px + env(safe-area-inset-bottom));
     transform: translateY(100%);
     transition: transform 0.28s cubic-bezier(.32,.72,0,1);
     z-index: 11;
   }
-
   .sheet.open { transform: translateY(0); }
 
-  .sheet-handle {
-    width: 36px;
-    height: 4px;
-    border-radius: 4px;
-    background: var(--line);
-    margin: 0 auto 18px;
+  .sheet-handle { width: 36px; height: 4px; border-radius: 4px; background: var(--line); margin: 0 auto 16px; }
+  .sheet h2 { font-size: 16px; font-weight: 700; margin: 0 0 14px; }
+
+  .ccy-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .ccy-opt {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--text-soft);
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    padding: 9px 13px; border-radius: 11px; cursor: pointer;
   }
+  .ccy-opt.active { border-color: var(--violet); background: var(--violet-dim); color: var(--violet); }
 
-  .sheet h2 {
-    font-family: 'Fraunces', serif;
-    font-size: 19px;
-    font-weight: 600;
-    margin: 0 0 16px;
+  .sheet-close {
+    width: 100%; padding: 13px; border-radius: 12px; border: none;
+    background: var(--violet); color: #fff; font-family: inherit;
+    font-size: 14px; font-weight: 700; cursor: pointer;
   }
-
-  .sheet input {
-    width: 100%;
-    border: 2px solid var(--line);
-    border-radius: var(--radius-sm);
-    padding: 14px 15px;
-    font-family: inherit;
-    font-size: 15px;
-    background: var(--bg);
-    color: var(--ink);
-  }
-
-  .sheet input:focus { outline: none; border-color: var(--accent); }
-
-  .sheet-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 16px;
-  }
-
-  .sheet-actions button {
-    flex: 1;
-    padding: 14px;
-    border-radius: var(--radius-sm);
-    border: none;
-    font-family: inherit;
-    font-size: 14.5px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  .btn-cancel { background: var(--bg); color: var(--ink-soft); border: 2px solid var(--line) !important; }
-  .btn-confirm { background: var(--accent); color: #fff; }
 </style>
 </head>
 <body>
 
-  <div class="hero">
-    <p class="greeting" id="greeting">GOOD MORNING</p>
-    <h1 class="serif" id="dateLabel">Loading...</h1>
-    <div class="progress-card">
-      <div class="progress-top">
-        <span class="label" id="progressLabel">No tasks yet</span>
-        <span class="count" id="progressCount"></span>
-      </div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="header">
+    <div class="glow"></div>
+    <button class="filter-btn" id="filterBtn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 5h16M7 12h10M10 19h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Filter
+    </button>
+    <div class="icon-box">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="3" stroke="white" stroke-width="1.8"/><path d="M3 9.5h18" stroke="white" stroke-width="1.8"/><path d="M8 3v3M16 3v3" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
     </div>
+    <h1>Economic Calendar</h1>
+    <p class="subtitle">Stay ahead of the market moving events</p>
   </div>
 
-  <div class="tabs">
-    <div class="tab-indicator" id="tabIndicator"></div>
-    <button class="tab active" data-tab="todo">Tasks</button>
-    <button class="tab" data-tab="habits">Habits</button>
+  <div class="day-strip-wrap">
+    <div class="day-strip" id="dayStrip"></div>
   </div>
 
-  <main>
-    <div class="view active" id="view-todo">
-      <p class="section-label">Your tasks</p>
-      <div class="card" id="todoCard" style="display:none">
-        <div id="todoList"></div>
-      </div>
-      <div class="empty" id="todoEmpty">
-        <div class="emoji">📝</div>
-        <div class="title">No tasks yet</div>
-        <div class="sub">Tap the button below to add your first one</div>
-      </div>
-    </div>
+  <div class="chip-row" id="chipRow">
+    <button class="chip active" data-filter="all">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="3" stroke="currentColor" stroke-width="2"/><path d="M3 9.5h18" stroke="currentColor" stroke-width="2"/></svg>
+      All Events
+    </button>
+    <button class="chip" data-filter="high"><span class="dot high"></span> High Impact</button>
+    <button class="chip" data-filter="medium"><span class="dot medium"></span> Medium Impact</button>
+    <button class="chip" data-filter="low"><span class="dot low"></span> Low Impact</button>
+  </div>
 
-    <div class="view" id="view-habits">
-      <p class="section-label">Building habits</p>
-      <div id="habitList"></div>
-      <div class="empty" id="habitEmpty">
-        <div class="emoji">🌱</div>
-        <div class="title">No habits yet</div>
-        <div class="sub">Add something you want to do every day</div>
-      </div>
+  <div class="table-wrap">
+    <div class="table-head">
+      <span class="col-time">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Time
+      </span>
+      <span class="col-event">Event</span>
+      <span class="col-num">Actual</span>
+      <span class="col-num">Forecast</span>
+      <span class="col-num">Previous</span>
     </div>
-  </main>
+    <div class="rows" id="rows"></div>
+  </div>
 
-  <button class="fab" id="fabAdd"><span class="plus">+</span> Add</button>
+  <div class="footer">
+    <div class="tz">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15.5 0 18M12 3c-2.5 2.5-2.5 15.5 0 18" stroke="currentColor" stroke-width="1.8"/></svg>
+      Time Zone&nbsp;<b>UTC +3:30</b>
+    </div>
+    <div class="legend">
+      <span class="legend-item"><span class="dot" style="background:var(--red)"></span>High</span>
+      <span class="legend-item"><span class="dot" style="background:var(--orange)"></span>Medium</span>
+      <span class="legend-item"><span class="dot" style="background:var(--green)"></span>Low</span>
+    </div>
+  </div>
 
   <div class="sheet-backdrop" id="backdrop"></div>
   <div class="sheet" id="sheet">
     <div class="sheet-handle"></div>
-    <h2 id="sheetTitle">New task</h2>
-    <input type="text" id="sheetInput" placeholder="e.g. Buy groceries">
-    <div class="sheet-actions">
-      <button class="btn-cancel" id="sheetCancel">Cancel</button>
-      <button class="btn-confirm" id="sheetConfirm">Add</button>
-    </div>
+    <h2>Filter by currency</h2>
+    <div class="ccy-list" id="ccyList"></div>
+    <button class="sheet-close" id="sheetClose">Apply</button>
   </div>
 
 <script>
@@ -500,306 +469,178 @@
   if (tg) {
     tg.ready();
     tg.expand();
-    try { tg.setBackgroundColor('#F3F1EA'); } catch (e) {}
-    try { tg.setHeaderColor('#1F9D8C'); } catch (e) {}
+    try { tg.setBackgroundColor('#0A0814'); } catch (e) {}
+    try { tg.setHeaderColor('#0A0814'); } catch (e) {}
   }
+  function haptic() { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); }
 
-  function haptic(type) {
-    if (tg && tg.HapticFeedback) {
-      if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
-      else tg.HapticFeedback.impactOccurred('light');
-    }
-  }
+  // ---------- Mock data ----------
+  const days = [
+    { dow: 'WED', date: 22, mon: 'May' },
+    { dow: 'THU', date: 23, mon: 'May' },
+    { dow: 'FRI', date: 24, mon: 'May' },
+    { dow: 'SAT', date: 25, mon: 'May', selected: true },
+    { dow: 'SUN', date: 26, mon: 'May' },
+    { dow: 'MON', date: 27, mon: 'May' },
+    { dow: 'TUE', date: 28, mon: 'May' },
+  ];
 
-  // ---------- Storage layer ----------
-  const storage = {
-    get(key) {
-      return new Promise((resolve) => {
-        if (tg && tg.CloudStorage) {
-          tg.CloudStorage.getItem(key, (err, value) => resolve(err ? null : value));
-        } else {
-          resolve(localStorage.getItem(key));
-        }
-      });
-    },
-    set(key, value) {
-      return new Promise((resolve) => {
-        if (tg && tg.CloudStorage) {
-          tg.CloudStorage.setItem(key, value, () => resolve());
-        } else {
-          localStorage.setItem(key, value);
-          resolve();
-        }
-      });
-    }
+  const starSVG = (filled) => filled
+    ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.8 5.9 21l1.4-6.8-5-4.7 6.8-.8L12 2.5z"/></svg>'
+    : '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.8L12 17.8 5.9 21l1.4-6.8-5-4.7 6.8-.8L12 2.5z"/></svg>';
+
+  const bellSVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.7 21a2 2 0 01-3.4 0" stroke-linecap="round"/></svg>';
+
+  const events = [
+    { time: '15:30', flag: '🇺🇸', ccy: 'USD', name: 'Core PCE Price Index (MoM)', impact: 'high', period: 'May', actual: '0.3%', forecast: '0.2%', previous: '0.3%', tone: 'down' },
+    { time: '15:30', flag: '🇺🇸', ccy: 'USD', name: 'PCE Price Index (MoM)', impact: 'high', period: 'May', actual: '0.2%', forecast: '0.3%', previous: '0.3%', tone: 'up' },
+    { time: '16:45', flag: '🇺🇸', ccy: 'USD', name: 'Chicago PMI', impact: 'medium', period: 'May', actual: '47.1', forecast: '45.0', previous: '43.6', tone: 'up' },
+    { time: '17:00', flag: '🇺🇸', ccy: 'USD', name: 'Consumer Sentiment', impact: 'medium', period: 'May', actual: '67.4', forecast: '66.0', previous: '65.3', tone: 'up' },
+    { time: '21:00', flag: '🇺🇸', ccy: 'USD', name: 'Fed Chair Powell Speaks', impact: 'high', period: '', actual: '—', forecast: '—', previous: '—', tone: 'dim' },
+    { time: '02:50', flag: '🇯🇵', ccy: 'JPY', name: 'Tokyo CPI (YoY)', impact: 'low', period: 'May', actual: '2.2%', forecast: '2.1%', previous: '1.9%', tone: 'up' },
+    { time: '04:30', flag: '🇦🇺', ccy: 'AUD', name: 'Retail Sales (MoM)', impact: 'medium', period: 'Apr', actual: '0.3%', forecast: '0.2%', previous: '0.0%', tone: 'up' },
+  ];
+
+  const impactMeta = {
+    high: { label: 'High Impact', color: 'var(--red)' },
+    medium: { label: 'Medium Impact', color: 'var(--orange)' },
+    low: { label: 'Low Impact', color: 'var(--green)' },
   };
 
-  // ---------- Date helpers ----------
-  function isoDate(d) { return d.toISOString().slice(0, 10); }
-  const todayISO = isoDate(new Date());
-  const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  const checkSVG = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.2 12L13 4" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-
-  const now = new Date();
-  const hour = now.getHours();
-  document.getElementById('greeting').textContent =
-    hour < 12 ? 'GOOD MORNING' : hour < 18 ? 'GOOD AFTERNOON' : 'GOOD EVENING';
-  document.getElementById('dateLabel').textContent = now.toLocaleDateString('en-US', {
-    weekday: 'long', day: 'numeric', month: 'long'
-  });
-
   // ---------- State ----------
-  let todos = [];
-  let habits = [];
-  let activeTab = 'todo';
+  const starred = new Set();
+  const muted = new Set();
+  let activeFilter = 'all';
+  let activeCurrencies = new Set(['USD', 'JPY', 'AUD']);
 
-  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-
-  async function loadAll() {
-    const t = await storage.get('todos');
-    const h = await storage.get('habits');
-    todos = t ? JSON.parse(t) : [];
-    habits = h ? JSON.parse(h) : [];
-    renderTodos();
-    renderHabits();
-  }
-
-  function saveTodos() { storage.set('todos', JSON.stringify(todos)); }
-  function saveHabits() { storage.set('habits', JSON.stringify(habits)); }
-
-  // ---------- Progress hero ----------
-  function renderProgress() {
-    const total = todos.length;
-    const done = todos.filter((t) => t.done).length;
-    const label = document.getElementById('progressLabel');
-    const count = document.getElementById('progressCount');
-    const fill = document.getElementById('progressFill');
-
-    if (total === 0) {
-      label.textContent = 'No tasks yet';
-      count.textContent = '';
-      fill.style.width = '0%';
-      return;
-    }
-    const pct = Math.round((done / total) * 100);
-    label.textContent = done === total ? 'All done for today 🎉' : "Today's progress";
-    count.textContent = done + ' / ' + total;
-    fill.style.width = pct + '%';
-  }
-
-  // ---------- Todo rendering ----------
-  function renderTodos() {
-    const list = document.getElementById('todoList');
-    const card = document.getElementById('todoCard');
-    const empty = document.getElementById('todoEmpty');
-    list.innerHTML = '';
-
-    if (todos.length === 0) {
-      card.style.display = 'none';
-      empty.style.display = 'block';
-      renderProgress();
-      return;
-    }
-    card.style.display = 'block';
-    empty.style.display = 'none';
-
-    const sorted = [...todos].sort((a, b) => (a.done === b.done ? 0 : a.done ? 1 : -1));
-
-    sorted.forEach((item) => {
-      const row = document.createElement('div');
-      row.className = 'row';
-
-      const check = document.createElement('div');
-      check.className = 'check' + (item.done ? ' done' : '');
-      check.innerHTML = checkSVG;
-      check.onclick = () => {
-        item.done = !item.done;
-        haptic(item.done ? 'success' : 'light');
-        saveTodos();
-        renderTodos();
-      };
-
-      const text = document.createElement('div');
-      text.className = 'row-text' + (item.done ? ' done' : '');
-      text.textContent = item.text;
-
-      const del = document.createElement('button');
-      del.className = 'row-del';
-      del.textContent = '×';
-      del.onclick = () => {
-        todos = todos.filter((t) => t.id !== item.id);
-        saveTodos();
-        renderTodos();
-      };
-
-      row.appendChild(check);
-      row.appendChild(text);
-      row.appendChild(del);
-      list.appendChild(row);
-    });
-
-    renderProgress();
-  }
-
-  // ---------- Habit rendering ----------
-  function lastSevenDays() {
-    const days = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      days.push(d);
-    }
-    return days;
-  }
-
-  function computeStreak(habit) {
-    let streak = 0;
-    let cursor = new Date();
-    while (habit.done.includes(isoDate(cursor))) {
-      streak++;
-      cursor.setDate(cursor.getDate() - 1);
-    }
-    return streak;
-  }
-
-  function renderHabits() {
-    const list = document.getElementById('habitList');
-    const empty = document.getElementById('habitEmpty');
-    list.innerHTML = '';
-    if (habits.length === 0) {
-      empty.style.display = 'block';
-      return;
-    }
-    empty.style.display = 'none';
-
-    const days = lastSevenDays();
-
-    habits.forEach((habit) => {
-      const card = document.createElement('div');
-      card.className = 'habit-card';
-
-      const top = document.createElement('div');
-      top.className = 'habit-top';
-
-      const left = document.createElement('div');
-      const name = document.createElement('p');
-      name.className = 'habit-name';
-      name.textContent = habit.name;
-      const s = computeStreak(habit);
-      const streak = document.createElement('div');
-      streak.className = 'habit-streak' + (s === 0 ? ' zero' : '');
-      streak.textContent = s > 0 ? '🔥 ' + s + ' day streak' : 'Start today';
-      left.appendChild(name);
-      left.appendChild(streak);
-
-      const todayFilled = habit.done.includes(todayISO);
-      const todayBtn = document.createElement('div');
-      todayBtn.className = 'today-btn' + (todayFilled ? ' done' : '');
-      todayBtn.innerHTML = checkSVG;
-      todayBtn.onclick = () => {
-        if (todayFilled) {
-          habit.done = habit.done.filter((x) => x !== todayISO);
-        } else {
-          habit.done.push(todayISO);
-          haptic('success');
-        }
-        saveHabits();
-        renderHabits();
-      };
-
-      top.appendChild(left);
-      top.appendChild(todayBtn);
-
-      const daysWrap = document.createElement('div');
-      daysWrap.className = 'habit-days';
-
-      days.forEach((d) => {
-        const iso = isoDate(d);
-        const isToday = iso === todayISO;
-        const filled = habit.done.includes(iso);
-
-        const col = document.createElement('div');
-        col.className = 'day-col';
-
-        const label = document.createElement('div');
-        label.className = 'day-label';
-        label.textContent = dayLabels[d.getDay()];
-
-        const bar = document.createElement('div');
-        bar.className = 'day-bar' + (filled ? ' filled' : '') + (isToday ? ' today-outline' : '');
-
-        col.appendChild(label);
-        col.appendChild(bar);
-        daysWrap.appendChild(col);
-      });
-
-      card.appendChild(top);
-      card.appendChild(daysWrap);
-      list.appendChild(card);
-    });
-  }
-
-  // ---------- Tabs ----------
-  const tabIndicator = document.getElementById('tabIndicator');
-  document.querySelectorAll('.tab').forEach((btn, i) => {
+  // ---------- Render day strip ----------
+  const dayStrip = document.getElementById('dayStrip');
+  days.forEach((d, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'day-cell' + (d.selected ? ' selected' : '');
+    btn.innerHTML = '<span class="dow">' + d.dow + '</span><span class="date">' + d.date + '</span><span class="mon">' + d.mon + '</span><span class="dot"></span>';
     btn.onclick = () => {
-      activeTab = btn.dataset.tab;
-      document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b === btn));
-      tabIndicator.style.transform = i === 0 ? 'translateX(0)' : 'translateX(100%)';
-      document.getElementById('view-todo').classList.toggle('active', activeTab === 'todo');
-      document.getElementById('view-habits').classList.toggle('active', activeTab === 'habits');
+      document.querySelectorAll('.day-cell').forEach((c) => c.classList.remove('selected'));
+      btn.classList.add('selected');
+      haptic();
+    };
+    dayStrip.appendChild(btn);
+  });
+  const jumpBtn = document.createElement('div');
+  jumpBtn.className = 'day-jump';
+  jumpBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 9.5h18"/><path d="M8 3v3M16 3v3" stroke-linecap="round"/></svg>';
+  dayStrip.appendChild(jumpBtn);
+
+  // ---------- Render rows ----------
+  const rowsEl = document.getElementById('rows');
+
+  function toneClass(tone) {
+    if (tone === 'up') return 'up';
+    if (tone === 'down') return 'down';
+    return 'dim';
+  }
+
+  function renderRows() {
+    rowsEl.innerHTML = '';
+    events.forEach((ev, idx) => {
+      const visible = (activeFilter === 'all' || activeFilter === ev.impact) && activeCurrencies.has(ev.ccy);
+      const row = document.createElement('div');
+      row.className = 'row' + (visible ? '' : ' hidden');
+      row.style.setProperty('--bar-color', impactMeta[ev.impact].color);
+
+      const star = document.createElement('button');
+      star.className = 'star-btn' + (starred.has(idx) ? ' active' : '');
+      star.innerHTML = starSVG(starred.has(idx));
+      star.onclick = () => {
+        starred.has(idx) ? starred.delete(idx) : starred.add(idx);
+        haptic();
+        renderRows();
+      };
+
+      const timeCol = document.createElement('div');
+      timeCol.className = 'time-col';
+      timeCol.innerHTML = '<span class="time">' + ev.time + '</span><span class="ccy">' + ev.flag + ' ' + ev.ccy + '</span>';
+
+      const eventCol = document.createElement('div');
+      eventCol.className = 'event-col';
+      const badges = '<span class="badge ' + ev.impact + '">' + impactMeta[ev.impact].label + '</span>' +
+        (ev.period ? '<span class="badge period">' + ev.period + '</span>' : '');
+      eventCol.innerHTML = '<span class="name">' + ev.name + '</span><div class="badges">' + badges + '</div>';
+
+      const actual = document.createElement('div');
+      actual.className = 'num-col ' + toneClass(ev.tone);
+      actual.textContent = ev.actual;
+
+      const forecast = document.createElement('div');
+      forecast.className = 'num-col dim';
+      forecast.textContent = ev.forecast;
+
+      const previous = document.createElement('div');
+      previous.className = 'num-col dim';
+      previous.textContent = ev.previous;
+
+      const bell = document.createElement('button');
+      bell.className = 'bell-btn' + (muted.has(idx) ? ' muted' : '');
+      bell.innerHTML = bellSVG;
+      bell.onclick = () => {
+        muted.has(idx) ? muted.delete(idx) : muted.add(idx);
+        haptic();
+        renderRows();
+      };
+
+      row.appendChild(star);
+      row.appendChild(timeCol);
+      row.appendChild(eventCol);
+      row.appendChild(actual);
+      row.appendChild(forecast);
+      row.appendChild(previous);
+      row.appendChild(bell);
+      rowsEl.appendChild(row);
+    });
+  }
+
+  // ---------- Filter chips ----------
+  document.querySelectorAll('.chip').forEach((chip) => {
+    chip.onclick = () => {
+      document.querySelectorAll('.chip').forEach((c) => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeFilter = chip.dataset.filter;
+      haptic();
+      renderRows();
     };
   });
 
-  // ---------- Add sheet ----------
+  // ---------- Currency filter sheet ----------
+  const allCurrencies = ['USD', 'JPY', 'AUD', 'EUR', 'GBP'];
+  const ccyList = document.getElementById('ccyList');
+  allCurrencies.forEach((c) => {
+    const opt = document.createElement('button');
+    opt.className = 'ccy-opt' + (activeCurrencies.has(c) ? ' active' : '');
+    opt.textContent = c;
+    opt.onclick = () => {
+      if (activeCurrencies.has(c)) activeCurrencies.delete(c); else activeCurrencies.add(c);
+      opt.classList.toggle('active');
+      haptic();
+    };
+    ccyList.appendChild(opt);
+  });
+
   const sheet = document.getElementById('sheet');
   const backdrop = document.getElementById('backdrop');
-  const sheetInput = document.getElementById('sheetInput');
-  const sheetTitle = document.getElementById('sheetTitle');
-  const sheetConfirmBtn = document.getElementById('sheetConfirm');
-
-  function openSheet() {
-    sheetTitle.textContent = activeTab === 'todo' ? 'New task' : 'New habit';
-    sheetInput.placeholder = activeTab === 'todo' ? 'e.g. Buy groceries' : 'e.g. Drink more water';
-    sheetConfirmBtn.textContent = activeTab === 'todo' ? 'Add Task' : 'Add Habit';
-    sheetInput.value = '';
+  document.getElementById('filterBtn').onclick = () => {
     sheet.classList.add('open');
     backdrop.classList.add('open');
-    setTimeout(() => sheetInput.focus(), 150);
-  }
-
+  };
   function closeSheet() {
     sheet.classList.remove('open');
     backdrop.classList.remove('open');
+    renderRows();
   }
-
-  document.getElementById('fabAdd').onclick = openSheet;
-  document.getElementById('sheetCancel').onclick = closeSheet;
+  document.getElementById('sheetClose').onclick = closeSheet;
   backdrop.onclick = closeSheet;
 
-  function confirmAdd() {
-    const value = sheetInput.value.trim();
-    if (!value) return;
-    if (activeTab === 'todo') {
-      todos.push({ id: uid(), text: value, done: false });
-      saveTodos();
-      renderTodos();
-    } else {
-      habits.push({ id: uid(), name: value, done: [] });
-      saveHabits();
-      renderHabits();
-    }
-    haptic('light');
-    closeSheet();
-  }
-
-  sheetConfirmBtn.onclick = confirmAdd;
-  sheetInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') confirmAdd();
-  });
-
   // ---------- Boot ----------
-  loadAll();
+  renderRows();
 </script>
 </body>
 </html>
