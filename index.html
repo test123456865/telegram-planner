@@ -1,39 +1,30 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>برنامه‌ریز</title>
+<title>Planner</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  @font-face {
-    font-family: 'Vazirmatn';
-    src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');
-    font-weight: 400;
-  }
-  @font-face {
-    font-family: 'Vazirmatn';
-    src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-Medium.woff2') format('woff2');
-    font-weight: 500;
-  }
-  @font-face {
-    font-family: 'Vazirmatn';
-    src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-SemiBold.woff2') format('woff2');
-    font-weight: 600;
-  }
-
   :root {
-    --bg: #FBF9F4;
+    --bg: #F3F1EA;
     --surface: #FFFFFF;
-    --ink: #1C2321;
-    --ink-soft: #7A8179;
-    --line: #E7E1D3;
-    --accent: #C98A2C;
-    --accent-soft: #F3E3C2;
-    --moss: #4F6F52;
-    --moss-soft: #DEE9DD;
-    --danger: #A6503D;
-    --radius: 16px;
+    --ink: #1C1F1D;
+    --ink-soft: #767F76;
+    --ink-faint: #A7AEA6;
+    --line: #E6E2D6;
+    --accent: #1F9D8C;
+    --accent-dark: #157A6D;
+    --accent-soft: #DCEFEC;
+    --amber: #E08D3C;
+    --amber-soft: #FBEBD8;
+    --radius-lg: 22px;
+    --radius-md: 16px;
+    --radius-sm: 12px;
+    --shadow: 0 8px 24px rgba(28, 31, 29, 0.06);
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -43,7 +34,7 @@
     padding: 0;
     background: var(--bg);
     color: var(--ink);
-    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
     height: 100%;
     overscroll-behavior-y: none;
   }
@@ -55,96 +46,163 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  .header {
-    padding: 22px 20px 12px;
+  .serif { font-family: 'Fraunces', Georgia, serif; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding: 26px 20px 20px;
+    background: linear-gradient(160deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: #fff;
+    border-radius: 0 0 28px 28px;
   }
 
-  .header .date {
+  .hero .greeting {
     font-size: 13px;
-    color: var(--ink-soft);
-    margin: 0 0 4px;
-  }
-
-  .header h1 {
-    font-size: 22px;
+    opacity: 0.85;
+    margin: 0 0 6px;
     font-weight: 600;
-    margin: 0;
-    letter-spacing: -0.2px;
+    letter-spacing: 0.2px;
   }
 
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 600;
+    margin: 0 0 18px;
+    line-height: 1.25;
+  }
+
+  .progress-card {
+    background: rgba(255,255,255,0.14);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    backdrop-filter: blur(6px);
+  }
+
+  .progress-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+
+  .progress-top .label { font-size: 13px; opacity: 0.9; font-weight: 500; }
+  .progress-top .count { font-size: 13px; font-weight: 700; }
+
+  .progress-track {
+    height: 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.25);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: #fff;
+    border-radius: 8px;
+    transition: width 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  /* ---------- Tabs ---------- */
   .tabs {
     display: flex;
-    gap: 28px;
-    padding: 18px 20px 0;
-    border-bottom: 1px solid var(--line);
+    gap: 6px;
+    margin: -18px 20px 0;
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    padding: 5px;
+    box-shadow: var(--shadow);
+    position: relative;
+    z-index: 2;
   }
 
   .tab {
+    flex: 1;
     background: none;
     border: none;
     font-family: inherit;
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: 700;
     color: var(--ink-soft);
-    padding: 0 0 12px;
+    padding: 11px 0;
+    border-radius: var(--radius-sm);
     cursor: pointer;
+    transition: color 0.2s;
     position: relative;
-    font-weight: 500;
   }
 
-  .tab.active {
-    color: var(--ink);
-  }
+  .tab.active { color: #fff; }
 
-  .tab.active::after {
-    content: '';
+  .tab-indicator {
     position: absolute;
-    bottom: -1px;
-    right: 0;
-    left: 0;
-    height: 2px;
-    background: var(--accent);
-    border-radius: 2px;
+    top: 5px;
+    bottom: 5px;
+    width: calc(50% - 5px);
+    background: var(--ink);
+    border-radius: var(--radius-sm);
+    transition: transform 0.28s cubic-bezier(.34,1.56,.64,1);
+    z-index: -1;
   }
 
+  /* ---------- Main ---------- */
   main {
     flex: 1;
-    padding: 8px 20px 100px;
+    padding: 22px 20px 110px;
     overflow-y: auto;
   }
 
   .view { display: none; }
-  .view.active { display: block; }
+  .view.active { display: block; animation: fadeIn 0.25s ease; }
 
-  .list {
-    margin-top: 8px;
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 0 2px 10px;
+  }
+
+  /* ---------- Task rows ---------- */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
   }
 
   .row {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 16px 2px;
+    gap: 13px;
+    padding: 16px 16px;
     border-bottom: 1px solid var(--line);
   }
 
   .row:last-child { border-bottom: none; }
 
   .check {
-    width: 24px;
-    height: 24px;
-    min-width: 24px;
+    width: 25px;
+    height: 25px;
+    min-width: 25px;
     border-radius: 50%;
-    border: 1.5px solid var(--ink-soft);
+    border: 2px solid var(--line);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    transition: background 0.18s, border-color 0.18s, transform 0.18s;
   }
 
   .check.done {
     background: var(--accent);
     border-color: var(--accent);
+    transform: scale(1.06);
   }
 
   .check svg {
@@ -158,125 +216,157 @@
 
   .row-text {
     flex: 1;
-    font-size: 15.5px;
+    font-size: 15px;
+    font-weight: 500;
     line-height: 1.4;
     transition: color 0.15s;
   }
 
   .row-text.done {
-    color: var(--ink-soft);
+    color: var(--ink-faint);
     text-decoration: line-through;
-    text-decoration-color: var(--line);
+    text-decoration-color: var(--ink-faint);
     text-decoration-thickness: 1.5px;
   }
 
   .row-del {
     background: none;
     border: none;
-    color: var(--ink-soft);
+    color: var(--ink-faint);
     font-size: 18px;
     line-height: 1;
     padding: 6px;
     cursor: pointer;
-    opacity: 0.5;
+    border-radius: 50%;
   }
 
-  /* Habit rows */
-  .habit-row {
-    padding: 16px 2px;
-    border-bottom: 1px solid var(--line);
+  /* ---------- Habit cards ---------- */
+  .habit-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 18px 18px 16px;
+    margin-bottom: 14px;
   }
-
-  .habit-row:last-child { border-bottom: none; }
 
   .habit-top {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
 
   .habit-name {
-    font-size: 15.5px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 4px;
   }
 
   .habit-streak {
     font-size: 12.5px;
-    color: var(--moss);
-    background: var(--moss-soft);
-    padding: 3px 9px;
-    border-radius: 20px;
-    white-space: nowrap;
-  }
-
-  .habit-days {
+    color: var(--amber);
+    font-weight: 700;
     display: flex;
-    justify-content: space-between;
-  }
-
-  .day-dot-wrap {
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
   }
 
-  .day-label {
-    font-size: 11px;
-    color: var(--ink-soft);
-  }
+  .habit-streak.zero { color: var(--ink-faint); }
 
-  .day-dot {
-    width: 30px;
-    height: 30px;
+  .today-btn {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
     border-radius: 50%;
-    border: 1.5px solid var(--line);
+    border: 2px solid var(--line);
     background: var(--surface);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.18s;
   }
 
-  .day-dot.today { border-color: var(--accent); }
-  .day-dot.filled { background: var(--moss); border-color: var(--moss); }
-  .day-dot.disabled { cursor: default; opacity: 0.55; }
+  .today-btn.done {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: scale(1.05);
+  }
 
+  .today-btn svg { width: 19px; height: 19px; opacity: 0; transition: opacity 0.15s; }
+  .today-btn.done svg { opacity: 1; }
+
+  .habit-days {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+  }
+
+  .day-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    flex: 1;
+  }
+
+  .day-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+
+  .day-bar {
+    width: 100%;
+    max-width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: var(--line);
+  }
+
+  .day-bar.filled { background: var(--accent); }
+  .day-bar.today-outline { box-shadow: 0 0 0 2px var(--accent-dark); }
+
+  /* ---------- Empty states ---------- */
   .empty {
     text-align: center;
-    padding: 60px 20px 20px;
+    padding: 50px 20px 10px;
     color: var(--ink-soft);
   }
 
-  .empty .emoji { font-size: 30px; margin-bottom: 10px; }
-  .empty .title { font-size: 15px; color: var(--ink); font-weight: 500; margin-bottom: 4px; }
-  .empty .sub { font-size: 13.5px; }
+  .empty .emoji { font-size: 34px; margin-bottom: 12px; }
+  .empty .title { font-size: 15.5px; color: var(--ink); font-weight: 700; margin-bottom: 4px; }
+  .empty .sub { font-size: 13.5px; color: var(--ink-soft); }
 
+  /* ---------- FAB ---------- */
   .fab {
     position: fixed;
-    bottom: calc(24px + env(safe-area-inset-bottom));
+    bottom: calc(22px + env(safe-area-inset-bottom));
     left: 50%;
     transform: translateX(-50%);
-    background: var(--accent);
+    background: var(--ink);
     color: #fff;
     border: none;
     border-radius: 30px;
-    padding: 14px 26px;
+    padding: 15px 28px;
     font-family: inherit;
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 14.5px;
+    font-weight: 700;
     display: flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 6px 20px rgba(201, 138, 44, 0.35);
+    box-shadow: 0 10px 26px rgba(28, 31, 29, 0.28);
     cursor: pointer;
   }
 
+  .fab .plus { color: var(--accent); font-size: 17px; }
+
+  /* ---------- Sheet ---------- */
   .sheet-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(28, 35, 33, 0.35);
+    background: rgba(20, 22, 20, 0.4);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s;
@@ -289,26 +379,35 @@
     position: fixed;
     left: 0; right: 0; bottom: 0;
     background: var(--surface);
-    border-radius: 20px 20px 0 0;
-    padding: 22px 20px calc(22px + env(safe-area-inset-bottom));
+    border-radius: 26px 26px 0 0;
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
     transform: translateY(100%);
-    transition: transform 0.25s ease;
+    transition: transform 0.28s cubic-bezier(.32,.72,0,1);
     z-index: 11;
   }
 
   .sheet.open { transform: translateY(0); }
 
+  .sheet-handle {
+    width: 36px;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--line);
+    margin: 0 auto 18px;
+  }
+
   .sheet h2 {
-    font-size: 16px;
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
     font-weight: 600;
-    margin: 0 0 14px;
+    margin: 0 0 16px;
   }
 
   .sheet input {
     width: 100%;
-    border: 1.5px solid var(--line);
-    border-radius: 12px;
-    padding: 13px 14px;
+    border: 2px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 14px 15px;
     font-family: inherit;
     font-size: 15px;
     background: var(--bg);
@@ -320,65 +419,78 @@
   .sheet-actions {
     display: flex;
     gap: 10px;
-    margin-top: 14px;
+    margin-top: 16px;
   }
 
   .sheet-actions button {
     flex: 1;
-    padding: 13px;
-    border-radius: 12px;
+    padding: 14px;
+    border-radius: var(--radius-sm);
     border: none;
     font-family: inherit;
     font-size: 14.5px;
-    font-weight: 500;
+    font-weight: 700;
     cursor: pointer;
   }
 
-  .btn-cancel { background: var(--bg); color: var(--ink-soft); border: 1.5px solid var(--line) !important; }
+  .btn-cancel { background: var(--bg); color: var(--ink-soft); border: 2px solid var(--line) !important; }
   .btn-confirm { background: var(--accent); color: #fff; }
 </style>
 </head>
 <body>
 
-  <div class="header">
-    <p class="date" id="todayLabel"></p>
-    <h1>برنامه‌ریز روزت</h1>
+  <div class="hero">
+    <p class="greeting" id="greeting">GOOD MORNING</p>
+    <h1 class="serif" id="dateLabel">Loading...</h1>
+    <div class="progress-card">
+      <div class="progress-top">
+        <span class="label" id="progressLabel">No tasks yet</span>
+        <span class="count" id="progressCount"></span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
   </div>
 
   <div class="tabs">
-    <button class="tab active" data-tab="todo">کارها</button>
-    <button class="tab" data-tab="habits">عادت‌ها</button>
+    <div class="tab-indicator" id="tabIndicator"></div>
+    <button class="tab active" data-tab="todo">Tasks</button>
+    <button class="tab" data-tab="habits">Habits</button>
   </div>
 
   <main>
     <div class="view active" id="view-todo">
-      <div class="list" id="todoList"></div>
-      <div class="empty" id="todoEmpty" style="display:none">
+      <p class="section-label">Your tasks</p>
+      <div class="card" id="todoCard" style="display:none">
+        <div id="todoList"></div>
+      </div>
+      <div class="empty" id="todoEmpty">
         <div class="emoji">📝</div>
-        <div class="title">هنوز کاری اضافه نکردی</div>
-        <div class="sub">با دکمه‌ی پایین یه کار جدید اضافه کن</div>
+        <div class="title">No tasks yet</div>
+        <div class="sub">Tap the button below to add your first one</div>
       </div>
     </div>
 
     <div class="view" id="view-habits">
-      <div class="list" id="habitList"></div>
-      <div class="empty" id="habitEmpty" style="display:none">
+      <p class="section-label">Building habits</p>
+      <div id="habitList"></div>
+      <div class="empty" id="habitEmpty">
         <div class="emoji">🌱</div>
-        <div class="title">هنوز عادتی نساختی</div>
-        <div class="sub">عادتی که می‌خوای هر روز دنبالش کنی رو اضافه کن</div>
+        <div class="title">No habits yet</div>
+        <div class="sub">Add something you want to do every day</div>
       </div>
     </div>
   </main>
 
-  <button class="fab" id="fabAdd">+ افزودن</button>
+  <button class="fab" id="fabAdd"><span class="plus">+</span> Add</button>
 
   <div class="sheet-backdrop" id="backdrop"></div>
   <div class="sheet" id="sheet">
-    <h2 id="sheetTitle">کار جدید</h2>
-    <input type="text" id="sheetInput" placeholder="مثلاً خرید نون">
+    <div class="sheet-handle"></div>
+    <h2 id="sheetTitle">New task</h2>
+    <input type="text" id="sheetInput" placeholder="e.g. Buy groceries">
     <div class="sheet-actions">
-      <button class="btn-cancel" id="sheetCancel">انصراف</button>
-      <button class="btn-confirm" id="sheetConfirm">افزودن</button>
+      <button class="btn-cancel" id="sheetCancel">Cancel</button>
+      <button class="btn-confirm" id="sheetConfirm">Add</button>
     </div>
   </div>
 
@@ -388,8 +500,8 @@
   if (tg) {
     tg.ready();
     tg.expand();
-    try { tg.setBackgroundColor('#FBF9F4'); } catch (e) {}
-    try { tg.setHeaderColor('#FBF9F4'); } catch (e) {}
+    try { tg.setBackgroundColor('#F3F1EA'); } catch (e) {}
+    try { tg.setHeaderColor('#1F9D8C'); } catch (e) {}
   }
 
   function haptic(type) {
@@ -400,8 +512,6 @@
   }
 
   // ---------- Storage layer ----------
-  // Uses Telegram CloudStorage when running inside Telegram, otherwise falls
-  // back to localStorage so the app is testable in a normal browser too.
   const storage = {
     get(key) {
       return new Promise((resolve) => {
@@ -425,13 +535,16 @@
   };
 
   // ---------- Date helpers ----------
-  function isoDate(d) {
-    return d.toISOString().slice(0, 10);
-  }
+  function isoDate(d) { return d.toISOString().slice(0, 10); }
   const todayISO = isoDate(new Date());
-  const dayLabels = ['ی', 'د', 'س', 'چ', 'پ', 'ج', 'ش']; // Sun..Sat short labels
+  const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const checkSVG = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.2 12L13 4" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-  document.getElementById('todayLabel').textContent = new Date().toLocaleDateString('fa-IR', {
+  const now = new Date();
+  const hour = now.getHours();
+  document.getElementById('greeting').textContent =
+    hour < 12 ? 'GOOD MORNING' : hour < 18 ? 'GOOD AFTERNOON' : 'GOOD EVENING';
+  document.getElementById('dateLabel').textContent = now.toLocaleDateString('en-US', {
     weekday: 'long', day: 'numeric', month: 'long'
   });
 
@@ -454,15 +567,40 @@
   function saveTodos() { storage.set('todos', JSON.stringify(todos)); }
   function saveHabits() { storage.set('habits', JSON.stringify(habits)); }
 
+  // ---------- Progress hero ----------
+  function renderProgress() {
+    const total = todos.length;
+    const done = todos.filter((t) => t.done).length;
+    const label = document.getElementById('progressLabel');
+    const count = document.getElementById('progressCount');
+    const fill = document.getElementById('progressFill');
+
+    if (total === 0) {
+      label.textContent = 'No tasks yet';
+      count.textContent = '';
+      fill.style.width = '0%';
+      return;
+    }
+    const pct = Math.round((done / total) * 100);
+    label.textContent = done === total ? 'All done for today 🎉' : "Today's progress";
+    count.textContent = done + ' / ' + total;
+    fill.style.width = pct + '%';
+  }
+
   // ---------- Todo rendering ----------
   function renderTodos() {
     const list = document.getElementById('todoList');
+    const card = document.getElementById('todoCard');
     const empty = document.getElementById('todoEmpty');
     list.innerHTML = '';
+
     if (todos.length === 0) {
+      card.style.display = 'none';
       empty.style.display = 'block';
+      renderProgress();
       return;
     }
+    card.style.display = 'block';
     empty.style.display = 'none';
 
     const sorted = [...todos].sort((a, b) => (a.done === b.done ? 0 : a.done ? 1 : -1));
@@ -473,7 +611,7 @@
 
       const check = document.createElement('div');
       check.className = 'check' + (item.done ? ' done' : '');
-      check.innerHTML = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.2 12L13 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      check.innerHTML = checkSVG;
       check.onclick = () => {
         item.done = !item.done;
         haptic(item.done ? 'success' : 'light');
@@ -499,6 +637,8 @@
       row.appendChild(del);
       list.appendChild(row);
     });
+
+    renderProgress();
   }
 
   // ---------- Habit rendering ----------
@@ -535,20 +675,40 @@
     const days = lastSevenDays();
 
     habits.forEach((habit) => {
-      const row = document.createElement('div');
-      row.className = 'habit-row';
+      const card = document.createElement('div');
+      card.className = 'habit-card';
 
       const top = document.createElement('div');
       top.className = 'habit-top';
-      const name = document.createElement('div');
+
+      const left = document.createElement('div');
+      const name = document.createElement('p');
       name.className = 'habit-name';
       name.textContent = habit.name;
-      const streak = document.createElement('div');
-      streak.className = 'habit-streak';
       const s = computeStreak(habit);
-      streak.textContent = s > 0 ? s + ' روز پیاپی' : 'شروع نشده';
-      top.appendChild(name);
-      top.appendChild(streak);
+      const streak = document.createElement('div');
+      streak.className = 'habit-streak' + (s === 0 ? ' zero' : '');
+      streak.textContent = s > 0 ? '🔥 ' + s + ' day streak' : 'Start today';
+      left.appendChild(name);
+      left.appendChild(streak);
+
+      const todayFilled = habit.done.includes(todayISO);
+      const todayBtn = document.createElement('div');
+      todayBtn.className = 'today-btn' + (todayFilled ? ' done' : '');
+      todayBtn.innerHTML = checkSVG;
+      todayBtn.onclick = () => {
+        if (todayFilled) {
+          habit.done = habit.done.filter((x) => x !== todayISO);
+        } else {
+          habit.done.push(todayISO);
+          haptic('success');
+        }
+        saveHabits();
+        renderHabits();
+      };
+
+      top.appendChild(left);
+      top.appendChild(todayBtn);
 
       const daysWrap = document.createElement('div');
       daysWrap.className = 'habit-days';
@@ -558,44 +718,34 @@
         const isToday = iso === todayISO;
         const filled = habit.done.includes(iso);
 
-        const wrap = document.createElement('div');
-        wrap.className = 'day-dot-wrap';
+        const col = document.createElement('div');
+        col.className = 'day-col';
 
         const label = document.createElement('div');
         label.className = 'day-label';
         label.textContent = dayLabels[d.getDay()];
 
-        const dot = document.createElement('div');
-        dot.className = 'day-dot' + (isToday ? ' today' : '') + (filled ? ' filled' : '') + (isToday ? '' : ' disabled');
-        if (isToday) {
-          dot.onclick = () => {
-            if (filled) {
-              habit.done = habit.done.filter((x) => x !== iso);
-            } else {
-              habit.done.push(iso);
-              haptic('success');
-            }
-            saveHabits();
-            renderHabits();
-          };
-        }
+        const bar = document.createElement('div');
+        bar.className = 'day-bar' + (filled ? ' filled' : '') + (isToday ? ' today-outline' : '');
 
-        wrap.appendChild(label);
-        wrap.appendChild(dot);
-        daysWrap.appendChild(wrap);
+        col.appendChild(label);
+        col.appendChild(bar);
+        daysWrap.appendChild(col);
       });
 
-      row.appendChild(top);
-      row.appendChild(daysWrap);
-      list.appendChild(row);
+      card.appendChild(top);
+      card.appendChild(daysWrap);
+      list.appendChild(card);
     });
   }
 
   // ---------- Tabs ----------
-  document.querySelectorAll('.tab').forEach((btn) => {
+  const tabIndicator = document.getElementById('tabIndicator');
+  document.querySelectorAll('.tab').forEach((btn, i) => {
     btn.onclick = () => {
       activeTab = btn.dataset.tab;
       document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b === btn));
+      tabIndicator.style.transform = i === 0 ? 'translateX(0)' : 'translateX(100%)';
       document.getElementById('view-todo').classList.toggle('active', activeTab === 'todo');
       document.getElementById('view-habits').classList.toggle('active', activeTab === 'habits');
     };
@@ -606,10 +756,12 @@
   const backdrop = document.getElementById('backdrop');
   const sheetInput = document.getElementById('sheetInput');
   const sheetTitle = document.getElementById('sheetTitle');
+  const sheetConfirmBtn = document.getElementById('sheetConfirm');
 
   function openSheet() {
-    sheetTitle.textContent = activeTab === 'todo' ? 'کار جدید' : 'عادت جدید';
-    sheetInput.placeholder = activeTab === 'todo' ? 'مثلاً خرید نون' : 'مثلاً ۱۰ دقیقه پیاده‌روی';
+    sheetTitle.textContent = activeTab === 'todo' ? 'New task' : 'New habit';
+    sheetInput.placeholder = activeTab === 'todo' ? 'e.g. Buy groceries' : 'e.g. Drink more water';
+    sheetConfirmBtn.textContent = activeTab === 'todo' ? 'Add Task' : 'Add Habit';
     sheetInput.value = '';
     sheet.classList.add('open');
     backdrop.classList.add('open');
@@ -641,7 +793,7 @@
     closeSheet();
   }
 
-  document.getElementById('sheetConfirm').onclick = confirmAdd;
+  sheetConfirmBtn.onclick = confirmAdd;
   sheetInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') confirmAdd();
   });
